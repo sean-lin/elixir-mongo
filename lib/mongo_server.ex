@@ -3,7 +3,9 @@ defmodule Mongo.Server do
   Manage the connection to a mongodb server
   """
   use Mongo.Helpers
-  defrecordp :mongo, __MODULE__ ,
+  require Record
+
+  Record.defrecordp :mongo, __MODULE__ ,
     host: nil,
     port: nil,
     mode: false,
@@ -54,7 +56,7 @@ defmodule Mongo.Server do
     timeout = Map.get(opts, :timeout, @timeout)
     mode    = Map.get(opts, :mode,    @mode)
     if is_binary(host) do
-      host = String.to_char_list!(host)
+      host = String.to_char_list(host)
     end
     mongo(host: host, port: port, mode: mode, timeout: timeout, id_prefix: mongo_prefix).tcp_connect
   end
@@ -197,9 +199,10 @@ defmodule Mongo.Server do
   end
   @doc false
   def prefix(mongo(id_prefix: prefix)) do
-    bc <<b::4>> inbits <<prefix::16>> do
+    str = for <<b::4 <- prefix >> do
         <<integer_to_binary(b,16)::binary>>
-    end |> String.downcase
+    end 
+    str |> iodata_to_binary |> String.downcase
   end
 
   @doc """
@@ -229,7 +232,7 @@ defmodule Mongo.Server do
     Enum.map_reduce(
       docs,
       {client_prefix, gen_trans_prefix, :crypto.rand_uniform(0, 4294967295)},
-      fn(doc, id) -> { Map.put(doc, :'_id', Bson.ObjectId.new(oid: to_oid(id))), next_id(id) } end)
+      fn(doc, id) -> { Map.put(doc, :'_id', %Bson.ObjectId{oid: to_oid(id)}), next_id(id) } end)
       |> elem(0)
   end
 

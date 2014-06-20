@@ -1,9 +1,14 @@
+defmodule Mongo_cmd do
+  defstruct command: nil, args: nil
+end
+
 defmodule Mongo.Request do
   @moduledoc """
   Defines, encodes and sends MongoDB operations to the server
   """
 
-  defrecordp :request, __MODULE__ ,
+  require Record
+  Record.defrecordp :request, __MODULE__ ,
     requestID: nil,
     payload: nil
 
@@ -120,8 +125,12 @@ defmodule Mongo.Request do
   def id(requestID, r), do: request(r, requestID: requestID)
 
   # transform a document into bson
-  defp document(command), do: Bson.encode(command)
-  defp document(command, command_args), do: Bson.encode({Mongo_cmd, command, command_args})
+  defp document(command) do
+    Bson.encode(command)
+  end
+  defp document(command, args) do
+    Bson.encode(%Mongo_cmd{command: command, args: args})
+  end
 
   defp message(payload, reqid) do
     <<(byte_size(payload) + 12)::[size(32),little]>> <> reqid <> <<0::32>> <> <<payload::binary>>
@@ -135,8 +144,8 @@ defmodule Mongo.Request do
 end
 
 defimpl BsonEncoder, for: Mongo_cmd do
-  def encode({Mongo_cmd, command, command_args}, name) when is_map(command) and is_map(command_args) do
-    "\x03" <> name <> "\x00" <> encode_e_list(command, command_args)
+  def encode(cmd, name) do
+    "\x03" <> name <> "\x00" <> encode_e_list(cmd.command, cmd.args)
   end
 
   def encode_e_list(map1, map2) do
@@ -151,6 +160,6 @@ defimpl BsonEncoder, for: Mongo_cmd do
       |> bitlist_to_bsondoc
   end
 
-  defp bitlist_to_bsondoc(arrbin), do: arrbin |> Enum.reverse |> iolist_to_binary |> Bson.doc
+  defp bitlist_to_bsondoc(arrbin), do: arrbin |> Enum.reverse |> iodata_to_binary |> Bson.doc
 end
 

@@ -38,12 +38,13 @@ defmodule Mongo do
   """
   defdelegate assign_id(docs, mongo), to: Mongo.Server
 
-  defexception Error, reason: nil, context: nil do
-
-    def message(Error[reason: reason, context: nil]) do
+  defmodule Error do
+    defexception reason: nil, context: nil
+    
+    def message(%Error{reason: reason, context: nil}) do
       inspect(reason)
     end
-    def message(Error[reason: reason, context: context]) do
+    def message(%Error{reason: reason, context: context}) do
       inspect(reason) <> "\n" <> inspect(context)
     end
   end

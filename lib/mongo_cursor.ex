@@ -5,8 +5,9 @@ defmodule Mongo.Cursor do
   Cursors are returned by a find see `Mongo.Collection.find/3`.
   """
   use Mongo.Helpers
-
-  defrecordp :cursor, __MODULE__ ,
+  
+  require Record
+  Record.defrecordp :cursor, __MODULE__ ,
     collection: nil,
     batchSize: 0,
     response: nil,

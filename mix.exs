@@ -5,7 +5,7 @@ defmodule Mongo.Mixfile do
     [ app: :mongo,
       name: "mongo",
       version: "0.2.0",
-      source_url: "https://github.com/checkiz/elixir-mongo",
+      source_url: "https://github.com/sean-lin/elixir-mongo",
       deps: deps(Mix.env),
       docs: &docs/0 ]
   end
@@ -21,7 +21,7 @@ defmodule Mongo.Mixfile do
   # Returns the list of dependencies for prod
   defp deps(:prod) do
     [
-      {:bson, github: "checkiz/elixir-bson"}
+      {:bson, github: "sean-lin/elixir-bson"}
     ]
   end
 
@@ -33,9 +33,10 @@ defmodule Mongo.Mixfile do
   defp deps(_), do: deps(:prod)
 
   defp docs do
-    [ #readme: false,
+    [ 
+      #readme: false,
       #main: "README",
-      source_ref: System.cmd("git rev-parse --verify --quiet HEAD") ]
+    ]
   end
 
 end

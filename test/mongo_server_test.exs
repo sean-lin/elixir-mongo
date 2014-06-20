@@ -6,7 +6,7 @@ defmodule Mongo.Server.Test do
   test "ping" do
     assert :ok == Mongo.connect!.ping
     ping_timeout = 
-      case Mongo.connect %{port: 80, timeout: 1} do
+      case Mongo.connect %{port: 15672, timeout: 1} do
         {:ok, localhost} ->
           # a Mongo ping on 80 should timout!
           localhost.ping
@@ -37,13 +37,13 @@ defmodule Mongo.Server.Test do
  
   test "async ping" do
     me = self()
-    Process.spawn_link(
+    spawn_link(
       fn() ->
         mongo = Mongo.connect! %{mode: :active}
         mongo |> Mongo.Request.adminCmd(mongo, %{ping: true}).send
         receive do
           {:tcp, _, m} ->
-            Process.send me, mongo.response!(m).success
+            send me, mongo.response!(m).success
         end
       end)
     assert_receive :ok
