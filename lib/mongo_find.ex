@@ -38,6 +38,12 @@ defmodule Mongo.Find do
   def skip(n, f), do: find(f, skip: n)
 
   @doc """
+  """
+  def sort(order, f) do
+    f.addSpecial(:'$orderby', order)
+  end
+
+  @doc """
   Specifies the number of documents to return in each batch
 
   Must be run before executing the query

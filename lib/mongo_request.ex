@@ -150,16 +150,16 @@ defimpl BsonEncoder, for: Mongo_cmd do
 
   def encode_e_list(map1, map2) do
     bitlist1 = :maps.fold( fn 
-      k, v, acc when is_atom(k) -> [BsonEncoder.encode(v, k |> atom_to_binary)|acc]
+      k, v, acc when is_atom(k) -> [BsonEncoder.encode(v, k |> Atom.to_string)|acc]
       k, v, acc -> [BsonEncoder.encode(v, Bson.encode(k))|acc]
     end, [], map1)
     :maps.fold( fn 
-      k, v, acc when is_atom(k) -> [BsonEncoder.encode(v, k |> atom_to_binary)|acc]
+      k, v, acc when is_atom(k) -> [BsonEncoder.encode(v, k |> Atom.to_string)|acc]
       k, v, acc -> [BsonEncoder.encode(v, Bson.encode(k))|acc]
     end, bitlist1, map2)
       |> bitlist_to_bsondoc
   end
 
-  defp bitlist_to_bsondoc(arrbin), do: arrbin |> Enum.reverse |> iodata_to_binary |> Bson.doc
+  defp bitlist_to_bsondoc(arrbin), do: arrbin |> Enum.reverse |> IO.iodata_to_binary |> Bson.doc
 end
 

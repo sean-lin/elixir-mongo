@@ -62,9 +62,9 @@ defmodule Mongo.Db do
   # creates an hex string from binary
   defp binary_to_hex(bin) do
     str = for <<b::4 <- bin >> do
-        <<integer_to_binary(b,16)::binary>>
+        <<Integer.to_string(b,16)::binary>>
     end
-    str |> iodata_to_binary |> String.downcase
+    str |> IO.iodata_to_binary |> String.downcase
   end
 
   # get `nonce` token from server

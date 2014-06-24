@@ -200,9 +200,9 @@ defmodule Mongo.Server do
   @doc false
   def prefix(mongo(id_prefix: prefix)) do
     str = for <<b::4 <- prefix >> do
-        <<integer_to_binary(b,16)::binary>>
+        <<Integer.to_string(b,16)::binary>>
     end 
-    str |> iodata_to_binary |> String.downcase
+    str |> IO.iodata_to_binary |> String.downcase
   end
 
   @doc """

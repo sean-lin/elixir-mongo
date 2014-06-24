@@ -13,7 +13,7 @@ defmodule Mongo.Crud.Test do
       %{a: 0, value: 0},
       %{a: 1, value: 1},
       %{a: 2, value: 1},
-      %{a: 3, value: 1},
+      %{a: 3, value: 5},
       %{a: 4, value: 1},
       %{a: 5, value: 3}
     ]
@@ -60,6 +60,12 @@ defmodule Mongo.Crud.Test do
     if true do
       ctx[:anycoll].delete(%{b: 789})
       assert ctx[:db].getLastError == :ok
+    end
+  end
+
+  test "sort", ctx do
+    if true do
+      assert %{_id: _, a: 3, value: 5} = ctx[:anycoll].find().sort(%{value: -1}).toArray |> List.first 
     end
   end
 
