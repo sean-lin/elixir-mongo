@@ -22,12 +22,12 @@ defmodule Mongo.Response do
   def new(
     <<_::32,                                            # total message size, including this
       _::32,                                            # identifier for this message
-      requestID::[size(32),signed,little],              # requestID from the original request
+      requestID::size(32)-signed-little,              # requestID from the original request
       @msg::binary,                                     # Opcode OP_REPLY
       _::6, queryFailure::1, cursorNotFound::1, _::24,  # bit vector representing response flags
-      cursorID::[size(64),signed,little],               # cursor id if client needs to do get more's
-      startingFrom::[size(32),signed,little],           # where in the cursor this reply is starting
-      numberReturned::[size(32),signed,little],         # number of documents in the reply
+      cursorID::size(64)-signed-little,               # cursor id if client needs to do get more's
+      startingFrom::size(32)-signed-little,           # where in the cursor this reply is starting
+      numberReturned::size(32)-signed-little,         # number of documents in the reply
       docBuffer::bitstring>>) do                        # buffer of Bson documents
     cond do
       cursorNotFound>0 ->

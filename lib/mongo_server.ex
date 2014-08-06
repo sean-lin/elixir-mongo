@@ -87,7 +87,7 @@ defmodule Mongo.Server do
   """
   def response(mongo) do
     case tcp_recv(mongo) do
-      {:ok, <<messageLength::[little, signed, size(32)], _::binary>> = message} ->
+      {:ok, <<messageLength::little-signed-size(32), _::binary>> = message} ->
         complete(messageLength, message, mongo) |> Mongo.Response.new
       error -> error
     end
@@ -97,7 +97,7 @@ defmodule Mongo.Server do
   Completes a possibly partial repsonce from the MongoDB server
   """
   def response(
-    <<messageLength::[little, signed, size(32)], _::binary>> = message,
+    <<messageLength::little-signed-size(32), _::binary>> = message,
     mongo) do
     complete(messageLength, message, mongo) |> Mongo.Response.new
   end
@@ -165,8 +165,8 @@ defmodule Mongo.Server do
   end
 
   # makes shure response is complete
-  defp complete(expected_length, buffer, _mongo) when size(buffer) == expected_length, do: buffer
-  defp complete(expected_length, buffer, _mongo) when size(buffer) >  expected_length, do: binary_part(buffer, 0, expected_length)
+  defp complete(expected_length, buffer, _mongo) when byte_size(buffer) == expected_length, do: buffer
+  defp complete(expected_length, buffer, _mongo) when byte_size(buffer) >  expected_length, do: binary_part(buffer, 0, expected_length)
   defp complete(expected_length, buffer, mongo) do
     case tcp_recv(mongo) do
       {:ok, mess} -> complete(expected_length, buffer <> mess, mongo)

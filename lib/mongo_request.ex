@@ -133,7 +133,7 @@ defmodule Mongo.Request do
   end
 
   defp message(payload, reqid) do
-    <<(byte_size(payload) + 12)::[size(32),little]>> <> reqid <> <<0::32>> <> <<payload::binary>>
+    <<(byte_size(payload) + 12)::size(32)-little>> <> reqid <> <<0::32>> <> <<payload::binary>>
   end
   # generates a request Id when not provided (makes sure it is a positive integer)
   defp gen_reqid() do
