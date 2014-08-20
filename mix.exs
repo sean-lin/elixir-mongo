@@ -13,7 +13,7 @@ defmodule Mongo.Mixfile do
   # Configuration for the OTP application
   def application do
     [
-      applications: [],
+      applications: [:bson],
       env: [host: {"127.0.0.1", 27017}]
     ]
   end
