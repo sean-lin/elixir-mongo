@@ -48,12 +48,12 @@ defmodule Mongo.Cursor do
   @doc """
   Returns response for the next batch of document of a given cursor
   """
-  def next_batch(cursor(cursorExhausted: true)), do: nil
+  def next_batch(cursor(cursorExhausted: true) = c), do: {:ok, {:halt, c}}
   def next_batch(cursor(collection: collection, batchSize: batchSize, cursorID: cursorID)=c) do
     (mongo = collection.db.mongo)
       |> Mongo.Request.get_more(collection, batchSize, cursorID).send
     case mongo.response do
-      {:ok, resp} -> {:ok, {resp, cursor(c, response: resp, cursorExhausted: resp.exhausted?)}}
+      {:ok, resp} -> {:ok, {[resp], cursor(c, response: resp, cursorExhausted: resp.exhausted?)}}
       error -> error
     end
   end
@@ -98,12 +98,12 @@ defmodule Mongo.Cursor do
   # Gets next doc, and, when nedded, requests next document batch.
   # Returns `nil` after last document when cursor is exhausted otherwise returns `{:ok, next_doc, cursor}`
   # """
-  defp next({r, c}) do
+  defp next({r, c} = acc) do
     case next?({r, c}) do
-      false -> nil
+      false -> {:halt, acc}
       {r, c} ->
         {d, r} = r.next
-        {d, {r, c}}
+        {[d], {r, c}}
     end
   end
   # @doc """
@@ -117,8 +117,8 @@ defmodule Mongo.Cursor do
       {r, c}
     else
       case c.next_batch! do
-        nil -> false
-        {r, c} -> if r.next?, do: {r, c}, else: false
+        {:halt, _} -> false
+        {[r], c} -> if r.next?, do: {r, c}, else: false
       end
     end
   end
