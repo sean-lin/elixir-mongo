@@ -54,7 +54,12 @@ defmodule Mongo.Request do
       docs |> Enum.reduce(
       @insert <> <<0::32>> <>
       collection.db.name <> "." <>  collection.name <> <<0::8>>,
-      fn(doc, acc) -> acc <> Bson.encode(doc) end)
+      fn doc, acc when is_binary(doc) -> 
+          acc <> doc 
+        doc, acc ->
+          acc <> Bson.encode(doc)
+      end
+      )
   end
 
   @doc """
