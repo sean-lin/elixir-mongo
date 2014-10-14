@@ -186,7 +186,9 @@ defmodule Mongo.Server do
   defp options(mongo(timeout: timeout)) do
     [ active: false,
       send_timeout: timeout,
-      send_timeout_close: true ]
+      send_timeout_close: true,
+      nodelay: true,
+    ]
   end
 
   defp mongo_prefix do
